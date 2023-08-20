@@ -16,7 +16,7 @@ public class QuestArrowsForMinimap : MonoBehaviour
 
     public GameObject minimap;
 
-    public List<GameObject> currentObjectTrackedInQuest = new List<GameObject>();
+    public List<GameObject> currentObjectsTrackedInQuest = new List<GameObject>();
 
     public void scrubTracker()
     {
@@ -26,7 +26,7 @@ public class QuestArrowsForMinimap : MonoBehaviour
     public void completelyScrubTracker()
     {
         scrubTracker();
-        currentObjectTrackedInQuest.Clear();
+        currentObjectsTrackedInQuest.Clear();
     }
 
     public void updateMinimapQuestTracker()
@@ -35,11 +35,11 @@ public class QuestArrowsForMinimap : MonoBehaviour
         {
             return;
         }
-        if (currentObjectTrackedInQuest.Count > 0)
+        if (currentObjectsTrackedInQuest.Count > 0)
         {
-            foreach (GameObject whatever in currentObjectTrackedInQuest)
+            foreach (GameObject currentObjectTrackedInQuest in currentObjectsTrackedInQuest)
             {
-                AddQuestObjectiveToMiniMap(whatever.transform);
+                AddQuestObjectiveToMiniMap(currentObjectTrackedInQuest.transform);
             }
         }
     }
@@ -50,11 +50,11 @@ public class QuestArrowsForMinimap : MonoBehaviour
         {
             return;
         }
-        if (currentObjectTrackedInQuest.Count > 0)
+        if (currentObjectsTrackedInQuest.Count > 0)
         {
-            foreach (GameObject whatever in currentObjectTrackedInQuest)
+            foreach (GameObject currentObjectTrackedInQuest in currentsObjectTrackedInQuest)
             {
-                AddQuestObjectiveToMiniMap(whatever.transform);
+                AddQuestObjectiveToMiniMap(currentObjectTrackedInQuest.transform);
             }
         }
     }
@@ -62,10 +62,10 @@ public class QuestArrowsForMinimap : MonoBehaviour
     {
 
 
-        foreach (MinimapTracker minimaptracker in trackers)
+        foreach (MinimapTracker minimapTracker in trackers)
         {
 
-            Destroy(minimaptracker.gameObject);
+            Destroy(minimapTracker.gameObject);
 
         }
 
@@ -146,7 +146,7 @@ public class QuestArrowsForMinimap : MonoBehaviour
             return;
         }
 
-        currentObjectTrackedInQuest.Clear();
+        currentObjectsTrackedInQuest.Clear();
 
         string currentQuestState = PixelCrushers.DialogueSystem.QuestLog.CurrentQuestState("Meet Alphonso");
 
@@ -156,15 +156,15 @@ public class QuestArrowsForMinimap : MonoBehaviour
             case "Talk to Alphonso":
             case "Return to Alphonso Again":
             case "Return to Alphonso":
-                currentObjectTrackedInQuest.Add(alphonso);
+                currentObjectsTrackedInQuest.Add(alphonso);
                 break;
 
             case "Use health station":
-                currentObjectTrackedInQuest.Add(healthStation1);
+                currentObjectsTrackedInQuest.Add(healthStation1);
                 break;
 
             case "Dumpster dive":
-                currentObjectTrackedInQuest.Add(genericDumpster);
+                currentObjectsTrackedInQuest.Add(genericDumpster);
                 break;
 
             default:
@@ -172,7 +172,7 @@ public class QuestArrowsForMinimap : MonoBehaviour
                 break;
         }
 
-        if (currentObjectTrackedInQuest.Count > 0)
+        if (currentObjectsTrackedInQuest.Count > 0)
         {
             UpdateTracker();
         }
@@ -181,7 +181,7 @@ public class QuestArrowsForMinimap : MonoBehaviour
 
     public void cQuestTrackerToAlphonso()
     {
-        currentObjectTrackedInQuest.Add(alphonso);
+        currentObjectsTrackedInQuest.Add(alphonso);
         UpdateTracker();
 
     }
