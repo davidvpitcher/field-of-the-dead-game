@@ -11,8 +11,18 @@ public class CollectibleManager : MonoBehaviour
     public Image collectibleDisplayImage;
     public TextMeshProUGUI collectibleDisplayLabel;
     public int totalNumberOfCollectibles; 
-
+    public List<GameObject> worldCollectibleObjects = new List<GameObject>();
     public List<CollectibleGuide> collectibleGuides = new List<CollectibleGuide>();
+
+    public GameObject collectiblesGrid;
+    public Transform collectiblesGridContent;
+
+    public GameObject completedTag;
+
+    public TextMeshProUGUI totalCollected;
+    public TextMeshProUGUI totalToCollect;
+
+    public GameObject collectibleMenuPrefab;
 
     public List<bool> collectibles;
 
@@ -22,10 +32,10 @@ public class CollectibleManager : MonoBehaviour
       
         collectibles = new List<bool>(new bool[totalNumberOfCollectibles]);
 
-        foreach(GameObject whatever in worldCollectibleObjects)
+        foreach(GameObject worldCollectibleObject in worldCollectibleObjects)
         {
      
-            collectibleGuides.Add(whatever.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<GroundCollectibleGuide>().collectibleScriptable);
+            collectibleGuides.Add(worldCollectibleObject.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<GroundCollectibleGuide>().collectibleScriptable);
         }
     }
 
@@ -52,19 +62,19 @@ public class CollectibleManager : MonoBehaviour
 
     public bool allComplete()
     {
-        bool ourbool = true;
+        bool allCompleted = true;
 
         foreach(bool collectible in collectibles)
         {
             if (!collectible)
             {
-                ourbool = false;
+                allCompleted = false;
             }
 
         }
 
 
-        return ourbool; 
+        return allCompleted; 
 
 
     }
@@ -72,7 +82,6 @@ public class CollectibleManager : MonoBehaviour
     {
         string collectiblesData = "";
 
-        // Assuming you have a bool array or BitArray representing the collectibles
         foreach (bool found in collectibles)
         {
             collectiblesData += found ? "1" : "0";
@@ -100,13 +109,13 @@ public class CollectibleManager : MonoBehaviour
     public void load()
     {
 
-        StartCoroutine(LOADCOLLECTIBLES());
+        StartCoroutine(LoadCollectibles());
 
 
     }
 
-    public List<GameObject> worldCollectibleObjects = new List<GameObject>();
-    IEnumerator LOADCOLLECTIBLES()
+
+    IEnumerator LoadCollectibles()
     {
         WWWForm form = new WWWForm();
         form.AddField("username", DBManager.username);
@@ -163,16 +172,6 @@ public class CollectibleManager : MonoBehaviour
 
         www.Dispose();
     }
-
-    public GameObject collectiblesGrid;
-    public Transform collectiblesGridContent;
-
-    public GameObject completedTag;
-
-    public TextMeshProUGUI totalCollected;
-    public TextMeshProUGUI totalToCollect;
-
-    public GameObject collectibleMenuPrefab;
 
     public void resetALL()
     {
@@ -292,12 +291,6 @@ public class CollectibleManager : MonoBehaviour
             sparkles.gameObject.SetActive(hasCollectible);
         }
     }
-   
-
-
-
-
-
 
     public void hideGrid()
     {
@@ -319,7 +312,6 @@ public class CollectibleManager : MonoBehaviour
     public void saveCollectiblesData()
     {
 
-
         StartCoroutine(SaveCollectibles(GetCollectiblesData()));
 
 
@@ -340,16 +332,8 @@ public class CollectibleManager : MonoBehaviour
         yield return www.SendWebRequest();
 
 
-  
-    
         www.Dispose();
     }
-
-
-
-
-
-
 
 
 
