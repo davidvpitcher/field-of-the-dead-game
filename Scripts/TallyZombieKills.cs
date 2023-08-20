@@ -8,6 +8,10 @@ public class TallyZombieKills : MonoBehaviour
 
     private int zombiesKilledRecently;
 
+    private Coroutine waitForMoreZombiesToDie1;
+
+    public bool tallyBegin = false;
+    public bool complete = false;
 
     public void reset()
     {
@@ -15,7 +19,7 @@ public class TallyZombieKills : MonoBehaviour
         StopAllCoroutines();
         complete = false;
         waitForMoreZombiesToDie1 = null;
-        tallybegin = false;
+        tallyBegin = false;
     }
 
     private IEnumerator waitForMore()
@@ -56,7 +60,6 @@ public class TallyZombieKills : MonoBehaviour
 
     }
 
-    public bool complete = false;
 
     public void completed()
     {
@@ -64,17 +67,14 @@ public class TallyZombieKills : MonoBehaviour
     }
 
 
-    private Coroutine waitForMoreZombiesToDie1;
-
-    public bool tallybegin = false;
     public void beginTally()
     {
-        tallybegin = true;
+        tallyBegin = true;
     }
     public void receiveKillNotice()
     {
 
-        if (!tallybegin)
+        if (!tallyBegin)
         {
             return;
         }
@@ -89,7 +89,7 @@ public class TallyZombieKills : MonoBehaviour
     }
 
 
-    // Start is called before the first frame update
+
     void Start()
     {
         zombiesKilledRecently = 0;
