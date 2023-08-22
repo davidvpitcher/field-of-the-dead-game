@@ -12,7 +12,7 @@ public class NetworkedMovingPlatform : NetworkBehaviour
 
 
     public List<GameObject> jetParticles = new List<GameObject>();
-
+    private bool platformInMotion = false;
 
     public float platformSpeed = 7f;
 
@@ -24,9 +24,8 @@ public class NetworkedMovingPlatform : NetworkBehaviour
     public enum PlatformState { Idle, Ascending, Waiting, Descending, Resting }
 
     public PlatformState currentState = PlatformState.Idle;
-    private Coroutine elevatorCoroutine;
-    private bool hasAscendedWithPlayers = false;
-
+    public bool hasAscendedWithPlayers = false;
+    public bool everyoneDisembarkedWhileAscended = false;
 
     public void TurnOnJetParticles()
     {
@@ -134,7 +133,6 @@ public class NetworkedMovingPlatform : NetworkBehaviour
             }
         }
 
-
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -157,6 +155,12 @@ public class NetworkedMovingPlatform : NetworkBehaviour
         if (!playersOnPlatform.Contains(whichPlayer.GetComponent<CharacterController>()))
         {
             playersOnPlatform.Add(whichPlayer.GetComponent<CharacterController>());
+        }
+
+        if (InstanceFinder.IsServer)
+        {
+
+            CheckPlayerCount();
         }
     }
 
@@ -186,48 +190,89 @@ public class NetworkedMovingPlatform : NetworkBehaviour
         {
             playersOnPlatform.Remove(whichPlayer.GetComponent<CharacterController>());
         }
+
+        if (InstanceFinder.IsServer)
+        {
+
+            CheckPlayerCount();
+        }
     }
 
+    public void ScanListAndFixIt(List<CharacterController> playerList)
+    {
+     
+        for (int i = playerList.Count - 1; i >= 0; i--)
+        {
+          
+            if (playerList[i] == null)
+            {
+                playerList.RemoveAt(i);
+            }
+        }
+
+    }
     private void StartElevator()
     {
-        currentState = PlatformState.Ascending;
-        hasAscendedWithPlayers = true;
+        if ((currentState == PlatformState.Idle || currentState == PlatformState.Resting) && playersOnPlatform.Count > 0)
+        {
+            currentState = PlatformState.Ascending;
+        }
     }
-
+    private void CheckPlayerCount()
+    {
+        if (platformInMotion) return;
+        if (playersOnPlatform.Count == 0)
+        {
+            if (currentState != PlatformState.Descending && currentState != PlatformState.Waiting)
+            {
+                currentState = PlatformState.Idle;
+                TurnOffJetParticles();
+            }
+        }
+        else if (currentState == PlatformState.Idle || currentState == PlatformState.Resting)
+        {
+            StartElevator();
+        }
+        if (hasAscendedWithPlayers && !everyoneDisembarkedWhileAscended && playersOnPlatform.Count == 0 && currentState == PlatformState.Waiting)
+        {
+            everyoneDisembarkedWhileAscended = true;
+        }
+    }
 
     public void FixedUpdate()
     {
         if (!InstanceFinder.IsServer) return;
 
-        if (playersOnPlatform.Count == 0)
-        {
-            currentState = PlatformState.Idle;
-            return;
-        }
+    
 
-  
+        ScanListAndFixIt(playersOnPlatform);
+
         switch (currentState)
         {
             case PlatformState.Idle:
-                StartElevator();
+               // do nothing
                 break;
 
             case PlatformState.Ascending:
                 this.transform.Translate(platformUpVector * Time.deltaTime * platformSpeed);
-        
+                platformInMotion = true;
                 if (transform.position.y >= maxHeightGuide.transform.position.y)
                 {
                     currentState = PlatformState.Waiting;
                     waitStartTime = Time.time;
+                    everyoneDisembarkedWhileAscended = false;
                 }
                 break;
             case PlatformState.Waiting:
-                if ((Time.time - waitStartTime >= 10f) || (hasAscendedWithPlayers && playersOnPlatform.Count == 0))
+                hasAscendedWithPlayers = true;
+                platformInMotion = false;
+                if ((Time.time - waitStartTime >= 3f) || (hasAscendedWithPlayers && everyoneDisembarkedWhileAscended && playersOnPlatform.Count > 0))
                 {
                     currentState = PlatformState.Descending;
                 }
                 break;
             case PlatformState.Descending:
+                platformInMotion = true;
                 this.transform.Translate(-platformUpVector * Time.deltaTime * platformSpeed);
                 if (transform.position.y <= minHeightGuide.transform.position.y)
                 {
@@ -238,6 +283,7 @@ public class NetworkedMovingPlatform : NetworkBehaviour
                 break;
 
             case PlatformState.Resting:
+                platformInMotion = false;
                 if (Time.time - waitStartTime >= 4f) 
                 {
                     currentState = PlatformState.Idle;
@@ -282,6 +328,5 @@ public class NetworkedMovingPlatform : NetworkBehaviour
                 }
             }
         }
-
     }
 }
