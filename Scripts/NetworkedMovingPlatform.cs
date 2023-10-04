@@ -6,6 +6,8 @@ using FishNet.Connection;
 using FishNet.Object;
 public class NetworkedMovingPlatform : NetworkBehaviour
 {
+    private ELEVATORHEADDETECTOR elevatorHeadDetector;
+
 
 
     public List<CharacterController> playersOnPlatform = new List<CharacterController>();
@@ -27,6 +29,23 @@ public class NetworkedMovingPlatform : NetworkBehaviour
     public bool hasAscendedWithPlayers = false;
     public bool everyoneDisembarkedWhileAscended = false;
 
+
+
+    public bool areWeDescending()
+    {
+        bool ourbool = false;
+
+        if (currentState == PlatformState.Descending)
+        {
+
+
+            ourbool = true;
+        }
+
+        return ourbool;
+    }
+
+
     public void TurnOnJetParticles()
     {
 
@@ -43,7 +62,13 @@ public class NetworkedMovingPlatform : NetworkBehaviour
             jetParticle.SetActive(false);
         }
     }
-
+    public void RequestElevatorDescend()
+    {
+        if (currentState == PlatformState.Waiting)
+        {
+            currentState = PlatformState.Descending;
+        }
+    }
     public void ParentPlayer(Transform whichPlayer, Transform toWhat)
     {
 
@@ -167,6 +192,7 @@ public class NetworkedMovingPlatform : NetworkBehaviour
     private void Awake()
     {
         platformUpVector = this.transform.up;
+        elevatorHeadDetector = GetComponentInChildren<ELEVATORHEADDETECTOR>();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -266,7 +292,7 @@ public class NetworkedMovingPlatform : NetworkBehaviour
             case PlatformState.Waiting:
                 hasAscendedWithPlayers = true;
                 platformInMotion = false;
-                if ((Time.time - waitStartTime >= 3f) || (hasAscendedWithPlayers && everyoneDisembarkedWhileAscended && playersOnPlatform.Count > 0))
+                if ((Time.time - waitStartTime >= 39f) || (hasAscendedWithPlayers && everyoneDisembarkedWhileAscended && playersOnPlatform.Count > 0))
                 {
                     currentState = PlatformState.Descending;
                 }
@@ -283,8 +309,9 @@ public class NetworkedMovingPlatform : NetworkBehaviour
                 break;
 
             case PlatformState.Resting:
+                elevatorHeadDetector.cubeToTurnOff.SetActive(true);
                 platformInMotion = false;
-                if (Time.time - waitStartTime >= 4f) 
+                if (Time.time - waitStartTime >= 7f) 
                 {
                     currentState = PlatformState.Idle;
                 }
