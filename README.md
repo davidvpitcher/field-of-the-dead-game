@@ -1,3 +1,3 @@
-# thefallofreasongame
-some source code from The Fall of Reason video game https://www.thefallofreason.com
+# fieldofthedeadgame
+some source code from Field of the Dead video game https://www.fieldofthedead.com
 the fall of reason is a multiplayer video game using Unity, C# and FishNet libraries
